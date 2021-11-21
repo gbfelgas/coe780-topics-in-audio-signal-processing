@@ -23,4 +23,4 @@ y = a * x
 
 # Write y(n) into output sound file with number of 
 # bits Nbits and sampling frequency FS
-sf.write(outputFile,y,FS,subtype='PCM_'+str(Nbits)) 
+sf.write(outputFile,y,FS,subtype='PCM_'+str(Nbits))
