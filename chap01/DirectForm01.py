@@ -36,14 +36,15 @@ for n in range(N):
 
 # Plot results
 plt.figure()
-plt.subplot(2,1,1)
+plt.subplot(211)
 plt.stem(np.arange(N),x,markerfmt='C0.',basefmt='gray')
 plt.axis(ymin=-1.2, ymax = 1.2)
 plt.xlabel('n \u2192')
 ax = plt.gca()
 ax.xaxis.set_major_formatter('{x:.0f}')
 ax.xaxis.set_major_locator(MultipleLocator(5))
-plt.ylabel('x[n] \u2192')
+plt.ylabel('x(n) \u2192')
+
 plt.subplot(212)
 plt.stem(np.arange(N),y,markerfmt='C0.',basefmt='gray')
 plt.axis(ymin=-1.2, ymax = 1.2)
@@ -51,7 +52,7 @@ plt.xlabel('n \u2192')
 ax = plt.gca()
 ax.xaxis.set_major_formatter('{x:.0f}')
 ax.xaxis.set_major_locator(MultipleLocator(5))
-plt.ylabel('y[n] \u2192')
+plt.ylabel('y(n) \u2192')
 plt.subplots_adjust(hspace=0.4)
 plt.show()
 
