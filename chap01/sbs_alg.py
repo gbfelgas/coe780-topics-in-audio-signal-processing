@@ -6,7 +6,7 @@
 # http://www.dafx.de. It may be used for educational purposes and not 
 # for commercial applications without further permission.
 #--------------------------------------------------------------------------
-import soundfile as sf
+import audiofile as af
 import numpy as np
 
 #Parameters
@@ -16,11 +16,11 @@ a = 2
 Nbits = 16
 
 # Read input sound file into vector x(n) and sampling frequency FS
-x, FS = sf.read(inputFile)
+x, FS = af.read(inputFile)
 
 # Sample-by sample algorithm y(n)=a*x(n)
 y = a * x 
 
 # Write y(n) into output sound file with number of 
 # bits Nbits and sampling frequency FS
-sf.write(outputFile,y,FS,subtype='PCM_'+str(Nbits))
+af.write(outputFile,y,FS,Nbits)
