@@ -10,8 +10,8 @@ import audiofile as af
 import numpy as np
 
 #Parameters
-inputFile = 'ton2.wav'
-outputFile = 'outton2.wav'
+inputFile = 'ton2.wav'       #input filename
+outputFile = 'ton2_out.wav'  #output filename
 a = 2
 Nbits = 16
 
