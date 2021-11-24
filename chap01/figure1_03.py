@@ -1,17 +1,9 @@
-# Author: U. Zölzer (Matlab)
-#
-#--------------------------------------------------------------------------
-# This source code is provided without any warranties as published in 
-# DAFX book 2nd edition, copyright Wiley & Sons 2011, available at 
-# http://www.dafx.de. It may be used for educational purposes and not 
-# for commercial applications without further permission.
-#--------------------------------------------------------------------------
 import audiofile as af
 import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.ticker import MultipleLocator
 
-x, FS = af.read('ton2.wav')
+x, FS = af.read('audios/ton2.wav')
 
 plt.figure()
 plt.subplot(3,1,1)
@@ -31,4 +23,5 @@ plt.ylabel('x(n)')
 plt.xlabel('n \u2192')
 plt.axis(ymin = -0.05, ymax = 0.05, xmin = 0, xmax = 100)
 plt.subplots_adjust(hspace = 0.3)
-plt.show()
+
+plt.savefig("figures/figure1_03.png", dpi=300, bbox_inches='tight')
