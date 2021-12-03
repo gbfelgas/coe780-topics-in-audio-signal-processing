@@ -41,7 +41,7 @@ def LowPass1st(x,fs,fc):
 
     return y
 
-def multieffects(x,SAMPLERATE,BL,FF,FB,Delay,Depth,ModType,ModFreq,Interpolation = 'linear'):
+def multieffects(x,SAMPLERATE,BL,FF,FB,Delay,Depth,ModType,ModFreq,Interpolation = 'linear',Normalize = False):
     '''
        
     Apply vibrato, flanger, chorus and doubling to a sampled audio
@@ -87,6 +87,10 @@ def multieffects(x,SAMPLERATE,BL,FF,FB,Delay,Depth,ModType,ModFreq,Interpolation
         'allpass' :  allpass interpolation
         'spline3' :  3rd order spline interpolation
 
+    Normalize: boolean
+        Normalize signal amplitute to [-1,1] if there is value out of
+        these limits using infinite norm.
+
     Return
     ------
     y:  numpy.ndarray
@@ -117,7 +121,8 @@ def multieffects(x,SAMPLERATE,BL,FF,FB,Delay,Depth,ModType,ModFreq,Interpolation
         return
     
     nChan = x_adj.shape[1]                         # # of audio channels (mono/muti-channel)
-    xh_n_k = np.zeros(nChan)                       # output from mod delay
+    x_mod = np.zeros(nChan)                        # output from mod delay
+    K = DELAY + ADDDELAY                           # center tab delay
     LEN = x_adj.shape[0]                           # # of samples in WAV-file
     L = DELAY + ADDDELAY + DEPTH + 2               # length of the entire delay (maximized) 
     Delayline = np.zeros((L, x_adj.shape[1]))      # memory allocation for delay
@@ -136,33 +141,39 @@ def multieffects(x,SAMPLERATE,BL,FF,FB,Delay,Depth,ModType,ModFreq,Interpolation
 
     for n in range(LEN):
 
+        xh_n_k = Delayline[K,:]
         xh_n = x_adj[n,:] + FB * xh_n_k
         Delayline = np.concatenate((xh_n.reshape((1,nChan)), Delayline[:-1,:]))
 
         #Delay modulation
         MOD = MOD_TOTAL[n]
+                           
         TAP = DELAY + ADDDELAY + DEPTH * MOD
         i = int(np.floor(TAP))
         frac = TAP - i
         
         if Interpolation.casefold() == 'linear':
             #---Linear Interpolation---------------------------------
-            xh_n_k = Delayline[i+1,:]*frac + Delayline[i,:]*(1-frac)
+            x_mod = Delayline[i+1,:]*frac + Delayline[i,:]*(1-frac)
         elif Interpolation.casefold() == 'allpass':
             #---Allpass Interpolation--------------------------------
-            xh_n_k = Delayline[i+1,:] + (1-frac)*Delayline[i,:] - (1-frac)*xh_n_k
+            x_mod = Delayline[i+1,:] + (1-frac)*Delayline[i,:] - (1-frac)*x_mod
         elif Interpolation.casefold() == 'spline3':
             #--3rd-order Spline Interpolation------------------------
-            xh_n_k = Delayline[i+1,:]*(frac**3)/6 \
-                   + Delayline[i  ,:]*((1+frac)**3 - 4*(frac**3))/6 \
-                   + Delayline[i-1,:]*((2-frac)**3 - 4*((1-frac)**3))/6 \
-                   + Delayline[i-2,:]*((1-frac)**3)/6
+            x_mod = Delayline[i+1,:]*(frac**3)/6 \
+                  + Delayline[i  ,:]*((1+frac)**3 - 4*(frac**3))/6 \
+                  + Delayline[i-1,:]*((2-frac)**3 - 4*((1-frac)**3))/6 \
+                  + Delayline[i-2,:]*((1-frac)**3)/6
         else:
             raise TypeError('unknown interpolation algorythm !!!')
             return
 
-        y[n,:] = xh_n * BL + xh_n_k * FF
-        
+        y[n,:] = xh_n * BL + x_mod * FF
+
+    # Normalization
+    if Normalize:
+        if abs(y).max() > 1: y = y / abs(y).max()
+    
     #return y according to original x shape
     if x.ndim == 1:
         return y[:,0]
