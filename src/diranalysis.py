@@ -3,10 +3,10 @@ import numpy as np
 def diranalysis(
     s: np.ndarray,
     theta: np.ndarray,
-    fs: float, 
+    fs: float,
+    with_noise: bool = False, 
     hopsize: int = 256,
-    winsize: int = 512,
-    with_noise: bool = False
+    winsize: int = 512
 ):
     """
     Args:
@@ -27,7 +27,7 @@ def diranalysis(
         # Add fading in diffuse noise with  36 sources evenly in the horizontal plane
         # Each direction will produce a different source
         for direction in range(0, 360, 10):
-            noise = (np.random.rand(fs) - 0.5) * (10 ** ((np.arange(N) / fs) * 2))
+            noise = (np.random.rand(N) - 0.5) * (10 ** ((np.arange(N) / fs) * 2))
             w += noise / np.sqrt(2)
             x += noise * np.cos(direction / 180 * np.pi)
             y += noise * np.sin(direction / 180 * np.pi)
