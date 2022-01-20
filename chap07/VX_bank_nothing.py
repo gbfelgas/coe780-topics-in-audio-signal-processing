@@ -151,7 +151,7 @@ if __name__=='__main__':
     plt.ylabel('Original signal\nx(n) '+r'$\rightarrow$')
     
     plt.subplot(232)
-    plt.pcolormesh(t, f*fs/2, Sxx, shading='gouraud',cmap='gray')
+    plt.pcolormesh(t, f*fs, Sxx, shading='gouraud',cmap='gray')
     plt.title('Spectrogram')
     plt.ylabel('Frequency [Hz]'+r' $\rightarrow$')
     plt.xlabel(r'n $\rightarrow$')
@@ -159,7 +159,7 @@ if __name__=='__main__':
     plt.colorbar()
 
     plt.subplot(233)
-    plt.pcolormesh(ta, fa*fs/2, Sxxa, shading='gouraud',cmap='gray')
+    plt.pcolormesh(ta, fa*fs, Sxxa, shading='gouraud',cmap='gray')
     plt.title('Phasogram')
     plt.ylabel('Frequency [Hz]'+r' $\rightarrow$')
     plt.xlabel(r'n $\rightarrow$')
@@ -172,14 +172,14 @@ if __name__=='__main__':
     plt.ylabel('Reconstructed signal\ny(n) '+r'$\rightarrow$')
     
     plt.subplot(235)
-    plt.pcolormesh(yt, yf*fs/2, Syy, shading='gouraud', cmap='gray')
+    plt.pcolormesh(yt, yf*fs, Syy, shading='gouraud', cmap='gray')
     plt.ylabel('Frequency [Hz]'+r' $\rightarrow$')
     plt.xlabel(r'n $\rightarrow$')
     plt.axis(ymax=wCut)
     plt.colorbar()
 
     plt.subplot(236)
-    plt.pcolormesh(yta, yfa*fs/2, Syya, shading='gouraud',cmap='gray')
+    plt.pcolormesh(yta, yfa*fs, Syya, shading='gouraud',cmap='gray')
     plt.ylabel('Frequency [Hz]'+r' $\rightarrow$')
     plt.xlabel(r'n $\rightarrow$')
     plt.axis(ymax=wCut)
