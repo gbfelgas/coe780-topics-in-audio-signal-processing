@@ -47,7 +47,6 @@ def VX_bank_nothing(x, n1=200, n2=200, s_win=2048, normOrigPeak = False):
     w1    = np.tile(w1,nChan).reshape((nChan,len(w1))).T
     w2    = w1.copy()    # output window
     L     = DAFx_in.shape[0]
-    aux_zeros = np.zeros((s_win,nChan))
 
     # 0-pad & normalize
     DAFx_in = np.vstack((np.zeros((s_win,nChan)),DAFx_in,np.zeros((s_win-(L%n1),nChan))))/abs(DAFx_in).max()
