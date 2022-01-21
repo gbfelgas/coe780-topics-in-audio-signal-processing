@@ -43,7 +43,11 @@ def VX_whisper(x, s_win=512, n1=64, n2=64, randomize='phase',normOrigPeak = Fals
 
     # 0-pad & normalize
     DAFx_in = np.vstack((np.zeros((s_win,nChan)),DAFx_in,np.zeros((s_win-(L%n1),nChan))))/abs(DAFx_in).max()
-    DAFx_out = np.zeros(DAFx_in.shape)
+    if n1==n2:
+        DAFx_out = np.zeros(DAFx_in.shape)
+    else:
+        DAFx_out = np.zeros((s_win+int(np.ceil(DAFx_in.shape[0]*n2/n1)),nChan))
+
     t = TicToc()
     t.tic() #Start timer
     #UUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUU
@@ -81,7 +85,10 @@ def VX_whisper(x, s_win=512, n1=64, n2=64, randomize='phase',normOrigPeak = Fals
 
     #----- output -----
     #DAFx_in = DAFx_in[s_win:s_win+L,:];
-    DAFx_out = DAFx_out[s_win:s_win+L,:] / abs(DAFx_out).max();
+    if n1==n2:
+        DAFx_out = DAFx_out[s_win:s_win+L,:] / abs(DAFx_out).max();
+    else:
+        DAFx_out = DAFx_out[s_win:,:] / abs(DAFx_out).max();
     if normOrigPeak: DAFx_out = DAFx_out * abs(x).max()
 
     #return DAFx_out according to original signal shape
@@ -92,3 +99,13 @@ def VX_whisper(x, s_win=512, n1=64, n2=64, randomize='phase',normOrigPeak = Fals
             return DAFx_out
         else:
             return DAFx_out.T
+
+if __name__=='__main__':
+    import audiofile as af
+    inputFile = 'redwheel.wav'
+
+    x, fs = af.read(inputFile)
+    auxName = inputFile.split('.wav')[0]
+
+    y = VX_whisper(x,n1=64, n2=32, normOrigPeak=False)
+    af.write(auxName+'_whisper.wav',y,fs)

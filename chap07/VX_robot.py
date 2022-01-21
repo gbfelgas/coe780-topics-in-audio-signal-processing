@@ -1,29 +1,29 @@
-# VX_denoise.m  [DAFXbook, 2nd ed., chapter 7]
+# VX_robot.m   [DAFXbook, 2nd ed., chapter 7]
+
 import numpy as np
 import scipy.signal as sig
 from pytictoc import TicToc
 
-
-def VX_denoise(x, s_win=2048, n1=512, n2=512, coef=0.01, method='sum', normOrigPeak = False):
+def VX_robot(x, s_win=1024, n1=441, fs=None, robotFreq=None, normOrigPeak = False):
     '''
-    ===== This program makes a denoising of a sound
-    
+
+    #===== this program performs a robotization of a sound
+
     INPUTS
     ---------------------
     x             signal
     s_win         analysis window length [samples]
-    n1            analysis step [samples] (s_win/8)
-    n2            synthesis step [samples]    
-    coef          denoise coefficient
-    method        {'sum','max'} Attenuation method
-                   'sum': ft = f*r/(r+coef);
-                   'max': ft = f*r/max(r,coef);
+    n1            analysis step [samples]
+    fs            sampling frequency (necessary only if robotFreq is informed)
+    robotFreq     robot frequency [Hertz]
+                  If None robotFreq will be fs/n1, otherwise n1 and n2 are ignored
     normOrigPeak  normalize according original signal max peak
 
     OUTPUT
     --------------------
-    y             signal with denoising
+    y             robotic signal
     '''
+
     
     #---- Adapting x shape to (sample, channel) ----
     if x.ndim == 1:
@@ -45,14 +45,13 @@ def VX_denoise(x, s_win=2048, n1=512, n2=512, coef=0.01, method='sum', normOrigP
     w2  = w1.copy()                            # synthesis window
     L   = DAFx_in.shape[0]
 
+    if not(robotFreq is None):
+        n1 = round(fs/robotFreq)
+    n2 = n1                                    # synthesis step [samples]  ( = n1)  
+
     # 0-pad & normalize
     DAFx_in = np.vstack((np.zeros((s_win,nChan)),DAFx_in,np.zeros((s_win-(L%n1),nChan))))/abs(DAFx_in).max()
-    if n1==n2:
-        DAFx_out = np.zeros(DAFx_in.shape)
-    else:
-        DAFx_out = np.zeros((s_win+int(np.ceil(DAFx_in.shape[0]*n2/n1)),nChan))
-
-    hs_win   = s_win//2;
+    DAFx_out = np.zeros(DAFx_in.shape)
 
     t = TicToc()
     t.tic() #Start timer
@@ -62,19 +61,10 @@ def VX_denoise(x, s_win=2048, n1=512, n2=512, coef=0.01, method='sum', normOrigP
     pend = DAFx_in.shape[0] - s_win;
     while pin<pend:
         grain = DAFx_in[pin:pin+s_win,:] * w1;
-        
         #===========================================
         f     = np.fft.fft(grain,axis=0); # FFT
-        r     = abs(f)/hs_win;
-        if method=='sum':
-            ft    = f * r / (r+coef);
-        elif method=='max':
-            ft    = f * r / np.where(r<coef,coef,r);
-        else:
-            raise TypeError('method must be equal to "sum" or "max" !!!')
-            return
-            
-        grain = np.real(np.fft.ifft(ft,axis=0))*w2
+        r     = abs(f)
+        grain = np.real(np.fft.ifft(r,axis=0))*w2
         # ===========================================
         DAFx_out [pout:pout+s_win,:] = DAFx_out [pout:pout+s_win,:] + grain;
         pin  = pin + n1;
@@ -82,13 +72,9 @@ def VX_denoise(x, s_win=2048, n1=512, n2=512, coef=0.01, method='sum', normOrigP
 
     #%UUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUU
     t.toc()
-
     #----- output -----
     #DAFx_in = DAFx_in[s_win:s_win+L,:];
-    if n1==n2:
-        DAFx_out = DAFx_out[s_win:s_win+L,:] / abs(DAFx_out).max();
-    else:
-        DAFx_out = DAFx_out[s_win:,:] / abs(DAFx_out).max();
+    DAFx_out = DAFx_out[s_win:s_win+L,:] / abs(DAFx_out).max();
     if normOrigPeak: DAFx_out = DAFx_out * abs(x).max()
 
     #return DAFx_out according to original signal shape
@@ -107,5 +93,6 @@ if __name__=='__main__':
     x, fs = af.read(inputFile)
     auxName = inputFile.split('.wav')[0]
 
-    y = VX_denoise(x,method='max',n1=300, n2=512, normOrigPeak=False)
-    af.write(auxName+'_denoise_max.wav',y,fs)
+    y = VX_robot(x,fs=fs,robotFreq=70,normOrigPeak=False)
+    af.write(auxName+'_robot.wav',y,fs)
+
