@@ -62,7 +62,7 @@ def VX_tstretch_real_pv(x, n1=200, n2=512, s_win=2048, normOrigPeak = False):
         grain = DAFx_in[pin:pin+s_win,:] * w1
 
         #===========================================
-        f = np.fft.fft(np.fft.fftshift(grain)) # FFT
+        f = np.fft.fft(np.fft.fftshift(grain,axes=0),axis=0) # FFT
         r = np.abs(f) # magnitude
         phi = np.angle(f) # phase
 
@@ -72,7 +72,7 @@ def VX_tstretch_real_pv(x, n1=200, n2=512, s_win=2048, normOrigPeak = False):
         psi   = princarg(psi+delta_phi*tstretch_ratio)
         #---- comouting synthesis Fourier transform & grain ----
         ft = (r * np.exp(1j * psi)) # reconstructed FFT
-        grain = np.fft.fftshift(np.real(np.fft.ifft(ft))) * w2
+        grain = np.fft.fftshift(np.real(np.fft.ifft(ft,axis=0)),axes=0) * w2
 
         # ===========================================
         DAFx_out[pout:pout+s_win,:] = DAFx_out[pout:pout+s_win,:] + grain
