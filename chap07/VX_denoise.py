@@ -4,14 +4,13 @@ import scipy.signal as sig
 from pytictoc import TicToc
 
 
-def VX_denoise(x, fs, s_win=2048, n1=512, n2=512, coef=0.01, method='sum', normOrigPeak = False):
+def VX_denoise(x, s_win=2048, n1=512, n2=512, coef=0.01, method='sum', normOrigPeak = False):
     '''
     ===== This program makes a denoising of a sound
     
     INPUTS
     ---------------------
     x             signal
-    fs            sampling frequency
     s_win         analysis window length [samples]
     n1            analysis step [samples] (s_win/8)
     n2            synthesis step [samples]    
@@ -103,5 +102,5 @@ if __name__=='__main__':
     x, fs = af.read(inputFile)
     auxName = inputFile.split('.wav')[0]
 
-    y = VX_denoise(x,fs,method='max',normOrigPeak=False)
+    y = VX_denoise(x,method='max',normOrigPeak=False)
     af.write(auxName+'_denoise_max.wav',y,fs)

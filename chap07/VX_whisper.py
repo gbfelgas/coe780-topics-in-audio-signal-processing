@@ -3,7 +3,7 @@ import numpy as np
 import scipy.signal as sig
 from pytictoc import TicToc
 
-def VX_whisper(x, fs, s_win=512, n1=64, n2=64, randomize='phase',normOrigPeak = False):
+def VX_whisper(x, s_win=512, n1=64, n2=64, randomize='phase',normOrigPeak = False):
     
     '''
     %===== This program makes the whisperization of a sound, 
@@ -12,7 +12,6 @@ def VX_whisper(x, fs, s_win=512, n1=64, n2=64, randomize='phase',normOrigPeak = 
     INPUTS
     ---------------------
     x             signal
-    fs            sampling frequency
     s_win         analysis window length [samples]
     n1            analysis step [samples] (s_win/8)
     n2            synthesis step [samples]    
