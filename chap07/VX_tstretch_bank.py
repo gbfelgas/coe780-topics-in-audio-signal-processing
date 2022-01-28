@@ -38,7 +38,7 @@ def VX_tstretch_bank(x, n1=256, n2=512, s_win=2048, normOrigPeak = False):
 
     #----- initialize windows, arrays, etc -----
     tstretch_ratio = n2/n1
-    w1    = sig.windows.hann(s_win, sym=False) # input window
+    w1    = np.sqrt(sig.windows.hann(s_win, sym=False)) # input window
     w1    = np.tile(w1,nChan).reshape((nChan,len(w1))).T
     w2    = w1.copy()    # output window
     L     = DAFx_in.shape[0]
@@ -117,72 +117,21 @@ if __name__=='__main__':
     import audiofile as af
     from pytictoc import TicToc
     
-    inputFile = 'la.wav'
+    inputFiles = ['la.wav'] # Input file names in an array
 
-    stdName = inputFile.split('.wav')[0]
-    x, fs = af.read(inputFile)
-    t = TicToc()
-    t.tic() #Start timer
-    y = VX_tstretch_bank(x, normOrigPeak=True)
-    t.toc()
-    af.write(stdName+'_tstretch_bank.wav',y, fs)
+    for i in range(len(inputFiles)): # Perform stretching on all files 
+        inputFile = inputFiles[i]
 
-    '''
-    win = sig.get_window('hann', 1024, fftbins=True)
-    nSpec = 12000
-    wCut = 500
-    
-    fa, ta, Sxxa = sig.spectrogram(x[:nSpec], window=win, noverlap=len(win)-1, mode='angle')
-    f, t, Sxx = sig.spectrogram(x[:nSpec], window=win, scaling='spectrum', noverlap=len(win)-1)
-    yfa, yta, Syya = sig.spectrogram(y[:nSpec], window=win, noverlap=len(win)-1, mode='angle')
-    yf, yt, Syy = sig.spectrogram(y[:nSpec], window=win,scaling='spectrum', noverlap=len(win)-1)
+        stdName = inputFile.split('.wav')[0]
+        x, fs = af.read(inputFile)
+        w1 = 256
+        w2 = 200
+        t = TicToc()
+        t.tic() #Start timer
+        y = VX_tstretch_bank(x,w1,w2, normOrigPeak=True)
+        t.toc()
+        af.write(stdName+'_tstretch_bank'+'_x'+ str(w2/w1) +'.wav',y, fs)
 
-    
-    plt.figure(figsize=(14,6))
-    plt.subplot(231)
-    plt.plot(x)
-    plt.title('Signal')
-    plt.xlabel(r'n $\rightarrow$')
-    plt.ylabel('Original signal\nx(n) '+r'$\rightarrow$')
-    
-    plt.subplot(232)
-    plt.pcolormesh(t, f*fs, Sxx, shading='gouraud',cmap='gray')
-    plt.title('Spectrogram')
-    plt.ylabel('Frequency [Hz]'+r' $\rightarrow$')
-    plt.xlabel(r'n $\rightarrow$')
-    plt.axis(ymax=wCut)
-    plt.colorbar()
-
-    plt.subplot(233)
-    plt.pcolormesh(ta, fa*fs, Sxxa, shading='gouraud',cmap='gray')
-    plt.title('Phasogram')
-    plt.ylabel('Frequency [Hz]'+r' $\rightarrow$')
-    plt.xlabel(r'n $\rightarrow$')
-    plt.axis(ymax=wCut)
-    plt.colorbar()
-
-    plt.subplot(234)
-    plt.plot(y)
-    plt.xlabel(r'n $\rightarrow$')
-    plt.ylabel('Reconstructed signal\ny(n) '+r'$\rightarrow$')
-    
-    plt.subplot(235)
-    plt.pcolormesh(yt, yf*fs, Syy, shading='gouraud', cmap='gray')
-    plt.ylabel('Frequency [Hz]'+r' $\rightarrow$')
-    plt.xlabel(r'n $\rightarrow$')
-    plt.axis(ymax=wCut)
-    plt.colorbar()
-
-    plt.subplot(236)
-    plt.pcolormesh(yta, yfa*fs, Syya, shading='gouraud',cmap='gray')
-    plt.ylabel('Frequency [Hz]'+r' $\rightarrow$')
-    plt.xlabel(r'n $\rightarrow$')
-    plt.axis(ymax=wCut)
-    plt.colorbar()
-
-    plt.tight_layout()
-    plt.show()
-    '''
     
     
     
