@@ -184,4 +184,5 @@ if __name__=='__main__':
     plt.title('Source and envelope separation - ' + filePath + r' - $N_1$ = '+ str(N1))
     plt.legend()
     plt.axis(xmin=0,xmax=FS/2)
+    plt.tight_layout()
     plt.show()
