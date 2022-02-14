@@ -196,8 +196,8 @@ def spsmodel(x,fs,w,N,t,maxnS,stocf,Ns=1024,H=256,effect=None,Filter=None,fshift
         if (fridx==0):
             lastysphase = ysphase.copy();
         elif (testZero==1):
-            lastysloc = ysloc.copy();
-            lastysphase = np.zeros(maxnS);
+            lastysloc = np.zeros(maxnS);  #initial lastysloc
+            lastysphase = 2*np.pi*np.random.uniform(0,1,maxnS); # initial yphase
     
         if (nS>lastnS):
             lastysphase = np.hstack((lastysphase, np.zeros(nS-lastnS)));
@@ -306,4 +306,3 @@ if __name__=='__main__':
     af.write(auxName+'_hps.wav',y,fs)
     af.write(auxName+'_h.wav',yh,fs)
     af.write(auxName+'_s.wav',ys,fs)
-    
