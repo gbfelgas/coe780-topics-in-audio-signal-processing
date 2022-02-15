@@ -21,7 +21,7 @@ def genspecsines(ploc, pmag, pphase, N):
         lb = np.arange(binremainder-4,binremainder+5,1) # main lobe (real value) bins to read
         lmag = genbh92lobe(lb,N//2)*10**(pmag[i]/20); # lobe magnitudes of the 
                                                        # complex exponential
-        b = np.arange(round(loc)-4,round(loc)+5,1);      # spectrum bins to fill
+        b = np.arange(round(loc)-4,round(loc)+5,1,dtype='int64') # spectrum bins to fill
                                                          # (0-based indexing)
         for m in range(9):
             if (b[m]<0):                       # peak lobe croses DC bin
