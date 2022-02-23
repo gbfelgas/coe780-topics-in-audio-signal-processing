@@ -105,6 +105,7 @@ def TWM (ploc, pmag, N, fs, minf0, maxf0):
 if __name__=='__main__':
     import audiofile as af
     from peakinterp import peakinterp
+    import matplotlib.pyplot as plt
     
     x,fs = af.read('audios2\\violin-B3.wav')
     w = np.hanning(1026)
@@ -116,24 +117,41 @@ if __name__=='__main__':
     N2 = N//2+1;                          # half-size of spectrum
     hNs = Ns//2;                          # half synthesis window size
     hM = (M-1)//2;                        # half analysis window size
-    pin = max(H,hM) + H;   #initialize sound pointer to middle of analysis window
+    pin = max(H,hM);   #initialize sound pointer to middle of analysis window
+    pend = len(x)-max(hM,H)-1;            # last sample to start a frame
     fftbuffer = np.zeros(N);              # initialize buffer for FFT
     w = w/w.sum();                        # normalize analysis window
     t=-150
     f0et = 1500
     minf0 = 100
     maxf0 = 400
-    xw = x[pin-hM:pin+hM+1]*w;                  # window the input sound
-    fftbuffer = np.zeros(N);                    # initialize buffer for FFT
-    fftbuffer[:(M+1)//2] = xw[(M+1)//2-1:];     # zero-phase window in fftbuffer
-    fftbuffer[N-(M-1)//2:] = xw[:(M-1)//2];
-    X = np.fft.fft(fftbuffer);                  # compute the FFT
-    mX = 20*np.log10(abs(X[:N2]));              # magnitude spectrum 
-    pX = np.unwrap(np.angle(X[:N//2+1]));        # unwrapped phase spectrum 
-    auxploc = np.where(mX[1:-1]>t,1,0) * np.where(mX[1:-1]>mX[2:],1,0) * np.where(mX[1:-1]>mX[:-2],1,0)
-    ploc = 1 + np.where(auxploc>0)[0]      # find peaks
-    #ploc = 1 + find((mX(2:N2-1)>t) .* (mX(2:N2-1)>mX(3:N2)) ...
-    #                .* (mX(2:N2-1)>mX(1:N2-2)));    % find peaks
-    ploc,pmag,pphase = peakinterp(mX,pX,ploc);    # refine peak values
-    f0 = f0detectiontwm(mX,fs,ploc,pmag,f0et,minf0,maxf0);    # find f0
-    print(f0)
+    saida = []
+    xpin = []
+    while pin<pend:
+        xw = x[pin-hM:pin+hM+1]*w;                  # window the input sound
+        fftbuffer = np.zeros(N);                    # initialize buffer for FFT
+        fftbuffer[:(M+1)//2] = xw[(M+1)//2-1:];     # zero-phase window in fftbuffer
+        fftbuffer[N-(M-1)//2:] = xw[:(M-1)//2];
+        X = np.fft.fft(fftbuffer);                  # compute the FFT
+        mX = 20*np.log10(abs(X[:N2]));              # magnitude spectrum 
+        pX = np.unwrap(np.angle(X[:N//2+1]));        # unwrapped phase spectrum 
+        auxploc = np.where(mX[1:-1]>t,1,0) * np.where(mX[1:-1]>mX[2:],1,0) * np.where(mX[1:-1]>mX[:-2],1,0)
+        ploc = 1 + np.where(auxploc>0)[0]      # find peaks
+        #ploc = 1 + find((mX(2:N2-1)>t) .* (mX(2:N2-1)>mX(3:N2)) ...
+        #                .* (mX(2:N2-1)>mX(1:N2-2)));    % find peaks
+        ploc,pmag,pphase = peakinterp(mX,pX,ploc);    # refine peak values
+        f0 = f0detectiontwm(mX,fs,ploc,pmag,f0et,minf0,maxf0);    # find f0
+        saida.append(f0)
+        xpin.append(pin)
+        pin+=H
+
+    f0B3 = 246.94
+    plt.figure()
+    plt.plot(xpin,saida,label=r'$F_0$ (measured)')
+    plt.plot([xpin[0],xpin[-1]],[f0B3,f0B3],'k--',label='B3')
+    plt.title('$F_0$ detection - "violin-B3.wav"')
+    plt.xlabel(r'n $\rightarrow$')
+    plt.ylabel(r'Frequency [HZ]')
+    plt.legend()
+    plt.show()
+    
