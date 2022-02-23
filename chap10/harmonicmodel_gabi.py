@@ -1,4 +1,5 @@
 import numpy as np
+
 from scipy.signal.windows import triang, blackmanharris
 from peakinterp import peakinterp
 from genspecsines import genspecsines
@@ -36,13 +37,13 @@ def harmonicmodel(
         f0et (float): Error threshold in the f0 detection
         maxhd (float): Maximum relative deviation in harmonic detection
         f0detection (str, optional): Method for f0 detection. Accepts 'yin' and 'twm'. Defaults to 'yin'.
-        Ns (int): FFT size for synthesis
-        H (int): Hop size for analysis and synthesis
-    
+        Ns (int, optional): FFT size for synthesis
+        H (int, optional): Hop size for analysis and synthesis
+
     Returns:
-        y (np.array): Output signal
+        y (np.ndarray): Output signal
     """
-                # tratamento de entradas
+    # tratamento de entradas
     if f0detection not in ['twm', 'yin']:
         raise Exception("Método inválido de detecção de f0. Escolha \'yin\' ou \'twm\'")
 
@@ -55,7 +56,7 @@ def harmonicmodel(
     hM = (M - 1)//2                                                                             # half analysis window size
     y = np.zeros(audio_len + Ns//2)	                                                            # initialize output array
     w = w / np.sum(w)                                                                           # normalize analysis window
-    
+
     sw = np.zeros(Ns)
 
     # como o comportamento da janela triangular estava diferente,
@@ -133,12 +134,12 @@ def harmonicmodel(
             hi += 1                                                                             # increase harmonic index
 
         hloc[:hi] = (hloc[:hi] != 0) * ((hloc[:hi] - 1)*Ns/N + 1)                                  # synthesis locs
-        
+
         # synthesis
         Yh = genspecsines(hloc[:hi], hmag, hphase, Ns)                                      # generate spec sines
         yh = np.fft.fftshift(np.real(np.fft.ifft(Yh)))                                          # time domain of sinusoids
         y[(pin - hNs):(pin + hNs)] = y[(pin - hNs):(pin + hNs)] + sw * yh[:Ns]                  # overlap-add
-        
+
         pin = pin + H                                                                           # advance the audio signal pointer
 
     return y
