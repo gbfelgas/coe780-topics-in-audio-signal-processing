@@ -149,7 +149,7 @@ if __name__=='__main__':
     plt.figure()
     plt.plot(xpin,saida,label=r'$F_0$ (measured)')
     plt.plot([xpin[0],xpin[-1]],[f0B3,f0B3],'k--',label='B3')
-    plt.title('$F_0$ detection - "violin-B3.wav"')
+    plt.title('$F_0$ detection - TWM ("violin-B3.wav")')
     plt.xlabel(r'n $\rightarrow$')
     plt.ylabel(r'Frequency [HZ]')
     plt.legend()
