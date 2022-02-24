@@ -2,7 +2,7 @@ import numpy as np
 import scipy.signal as sig
 from peakinterp import peakinterp
 from genspecsines import genspecsines
-from f0detectionyin import f0detectionyin
+from f0detectionyin_danilo import f0detectionyin
 import scipy.interpolate
 
 def interpolate_1d_vector(vector, factor):
