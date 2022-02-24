@@ -67,8 +67,6 @@ def hpsmodelmorph(x,x2,fs,w,N,t,nH,minf0,maxf0,f0et,maxhd,stocf,f0intp,htintp,ri
         rintp = np.array([[0,(len(x)-1)/fs],[rintp, rintp]])  #[[input time],[control value]]
 
     M = len(w);                           # analysis window size (odd)
-    Ns = 1024;                            # FFT size for synthesis
-    H = 256;                              # hop size for analysis and synthesis
     N2 = N//2+1;                          # half-size of spectrum
     soundlength = len(x);                 # length of input sound array
     hNs = Ns//2;                          # half synthesis window size
