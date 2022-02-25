@@ -64,7 +64,7 @@ def UX_spectral_interp(x1, x2, n1 = 512, n2 = 512, s_win = 2048, cut = 50):
    pin  = 0
    pout = 0
    pend = L - s_win
-   while pin<pend:
+   while pin < pend:
 
       #---- k factor (spectral mix) wich varies between 0 and 1
       k      = pin / pend
