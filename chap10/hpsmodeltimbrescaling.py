@@ -26,7 +26,7 @@ def interpolate_1d_vector(vector, factor):
 
     return y_interpolated
 
-def hpsmodelparams(x,fs,w,N,t,nH,minf0,maxf0,f0et,maxhd,stocf,timemapping=None,Ns=1024,H=256):
+def hpsmodelparams(x,fs,w,N,t,nH,minf0,maxf0,f0et,maxhd,stocf,fscale=2,timbremapping=None,timemapping=None,Ns=1024,H=256):
     '''
     Authors: J. Bonada, X. Serra, X. Amatriain, A. Loscos
     => analysis/synthesis of a sound using the sinusoidal harmonic model
@@ -142,21 +142,27 @@ def hpsmodelparams(x,fs,w,N,t,nH,minf0,maxf0,f0et,maxhd,stocf,timemapping=None,N
         yf0 = f0;                               # synthesis f0
 
         #-----transformations-----%
-        #-----vibrato and tremolo-----#
-        fscale = 0.9
-        if f0 > 0 and np.any(hloc>0):
-            vtf = 5                                             # vibrato-tremolo frequency in Hz
-            va = 50                                             # vibrato depth in cents
-            td = 3                                              # tremolo depth in dB
-            sfscale = fscale*2**(va/1200*np.sin(2*np.pi*vtf*pin/fs))   
-            yhloc = yhloc*sfscale                               # synthesis harmonic locs
-            yf0 = f0*sfscale                                    # synthesis f0
-            auxidx = np.where(hloc>0,1,0) * np.where(hloc<Ns,1,0)
-            idx = np.where(auxidx>0)[0]
+        #-----pitch transposition and timbre scaling-----#
+        yhloc = yhloc*fscale                # scale harmonic frequencies
+        yf0 = f0*fscale                     # synthesis fundamental frequency
+        if np.all(timbremapping) == None:
+            timbremapping = np.array([[0, 4000, fs/2], [0, 4000, fs/2]])
+        # harmonics
+        if f0>0:
+            thloc = np.interp(yhloc/Ns*fs, timbremapping[1,:], timbremapping[0,:]) / fs*Ns  # mapped harmonic freqs.
+            auxidx = np.where(hloc>0,1,0) * np.where(hloc<Ns*.5,1,0)
+            idx = np.where(auxidx>0)[0]        # harmonic indexes in frequency range
             aux1 = np.append(np.append(0,hloc[idx]),Ns)
             aux2 = np.append(np.append(hmag[0],hmag[idx]),hmag[-1])
-            yhmag = np.interp(yhloc, aux1, aux2)                # interpolated envelope
-            yhmag = yhmag + td*np.sin(2*np.pi*vtf*pin/fs)       # tremolo
+            yhmag = np.interp(thloc, aux1, aux2)                # interpolated envelope
+        # residual
+        # frequency (Hz) of the last  coefficient
+        frescoef = fs/2*len(mYsenv)*stocf/len(mXr); 
+        # mapped coef. indexes
+        aux = np.minimum(np.zeros(len(mYsenv))+fs//2,np.arange(0,len(mYsenv),1)/(len(mYsenv))*frescoef)
+        trescoef = np.interp(aux, timbremapping[1,:], timbremapping[0,:])
+        # interpolated envelope                                   
+        mYsenv = np.interp(trescoef/frescoef*(len(mYsenv)-1),np.arange(0,len(mYsenv),1),mYsenv)
         #-----synthesis-----%
 
         yhphase = yhphase + 2*np.pi*(lastyhloc+yhloc)/2/Ns*H; # propagate phases
